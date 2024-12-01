@@ -2,8 +2,6 @@ package com.noelle.crud_spring_pet_loiane.controller;
 
 import java.util.List;
 
-import javax.swing.text.html.parser.Entity;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +17,8 @@ import com.noelle.crud_spring_pet_loiane.model.Tabela;
 import com.noelle.crud_spring_pet_loiane.repository.TabelaRepository;
 
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 @RestController
@@ -37,7 +36,7 @@ public class TabelaController {
     @GetMapping("/{id}")
     public ResponseEntity<Tabela> findbyId(@PathVariable Long id) {
         return tabelaRepository.findById(id)
-        .map(record -> ResponseEntity.ok().body(record))
+        .map(recordFound -> ResponseEntity.ok().body(recordFound))
         .orElse(ResponseEntity.notFound().build());
     }
     
@@ -51,4 +50,16 @@ public class TabelaController {
         //     .body(tabelaRepository.save(tabela));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Tabela> update(@PathVariable Long id,
+     @RequestBody Tabela tabela) {
+        return tabelaRepository.findById(id)
+        .map(recordFound -> {
+            recordFound.setNome(tabela.getNome());
+            recordFound.setCategoria(tabela.getCategoria());
+            Tabela updated = tabelaRepository.save(recordFound);
+            return ResponseEntity.ok().body(updated);
+        })
+        .orElse(ResponseEntity.notFound().build());
+    }
 }
