@@ -16,37 +16,43 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.noelle.crud_spring_pet_loiane.model.Tabela;
 import com.noelle.crud_spring_pet_loiane.repository.TabelaRepository;
+import com.noelle.crud_spring_pet_loiane.service.TabelaService;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 import org.springframework.web.bind.annotation.PutMapping;
 
 
 
 @RestController
 @RequestMapping("api/tabela")
-@AllArgsConstructor
 public class TabelaController {
     
-    private final TabelaRepository tabelaRepository;
+    private final TabelaService tabelaService;
+
+    public TabelaController( TabelaService tabelaService){
+        this.tabelaService = tabelaService;
+    }
 
     @GetMapping
     public @ResponseBody List<Tabela> list() {
-        return tabelaRepository.findAll();
+        return tabelaService.list();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Tabela> findbyId(@PathVariable Long id) {
-        return tabelaRepository.findById(id)
+    public ResponseEntity<Tabela> findbyId(@PathVariable @NotNull @Positive Long id) {
+        return tabelaService.findbyId(id)
         .map(recordFound -> ResponseEntity.ok().body(recordFound))
         .orElse(ResponseEntity.notFound().build());
     }
     
-
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    public Tabela create(@RequestBody Tabela tabela){
+    public Tabela create(@RequestBody @Valid Tabela tabela){
         // System.out.println(tabela.getNome());
-        return tabelaRepository.save(tabela);
+        return tabelaService.create(tabela);
         // return ResponseEntity.status(HttpStatus.CREATED)
         //     .body(tabelaRepository.save(tabela));
     }
@@ -54,25 +60,16 @@ public class TabelaController {
     @PutMapping("/{id}")
     public ResponseEntity<Tabela> update(@PathVariable Long id,
      @RequestBody Tabela tabela) {
-        return tabelaRepository.findById(id)
-        .map(recordFound -> {
-            recordFound.setNome(tabela.getNome());
-            recordFound.setCategoria(tabela.getCategoria());
-            Tabela updated = tabelaRepository.save(recordFound);
-            return ResponseEntity.ok().body(updated);
-        })
+        return tabelaService.update(id, tabela)
+        .map(recordFound -> ResponseEntity.ok().body(recordFound))
         .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity <Void> delete(@PathVariable Long id) {
-        return tabelaRepository.findById(id)
-        .map(recordFound -> {
-            tabelaRepository.deleteById(id);
-        
-            return ResponseEntity.noContent().<Void>build();
-        })
-        .orElse(ResponseEntity.notFound().build());
+        if(tabelaService.delete(id)) {
+        return ResponseEntity.noContent().<Void>build();
+        }
+        return ResponseEntity.notFound().build();
     }
-    
 }
