@@ -1,18 +1,15 @@
 package com.noelle.crud_spring_pet_loiane.service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.noelle.crud_spring_pet_loiane.model.Tabela;
+import com.noelle.crud_spring_pet_loiane.dto.TabelaDTO;
+import com.noelle.crud_spring_pet_loiane.dto.mapper.TabelaMapper;
+import com.noelle.crud_spring_pet_loiane.exception.RecordNotFoundExeption;
 import com.noelle.crud_spring_pet_loiane.repository.TabelaRepository;
 
 import jakarta.validation.Valid;
@@ -24,40 +21,47 @@ import jakarta.validation.constraints.Positive;
 public class TabelaService {
     
     private final TabelaRepository tabelaRepository;
+    private final TabelaMapper tabelaMapper;
 
-    public TabelaService(TabelaRepository tabelaRepository){
+    public TabelaService(TabelaRepository tabelaRepository, TabelaMapper tabelaMapper){
         this.tabelaRepository = tabelaRepository;
+        this.tabelaMapper = tabelaMapper;
     }
 
-    public List<Tabela> list() {
-        return tabelaRepository.findAll();
+    public List<TabelaDTO> list() {
+        return tabelaRepository.findAll()
+        .stream()
+        .map(tabelaMapper::toDTO)
+        .collect(Collectors.toList());
     }
 
-    public Optional<Tabela> findbyId(@PathVariable @NotNull @Positive Long id) {
-        return tabelaRepository.findById(id);
+    public TabelaDTO findbyId(@PathVariable @NotNull @Positive Long id) {
+        return tabelaRepository.findById(id).map(tabelaMapper::toDTO)
+        .orElseThrow(() -> new RecordNotFoundExeption(id));
     }
 
-    public Tabela create(@RequestBody Tabela tabela){
-        return tabelaRepository.save(tabela);
+    public TabelaDTO create(@Valid @NotNull TabelaDTO tabela){
+        return tabelaMapper.toDTO(tabelaRepository.save(tabelaMapper.toEntity(tabela))) ;
     }
 
-    public Optional<Tabela> update(@PathVariable Long id, @Valid Tabela tabela) {
-       return tabelaRepository.findById(id)
-       .map(recordFound -> {
-           recordFound.setNome(tabela.getNome());
-           recordFound.setCategoria(tabela.getCategoria());
-           return tabelaRepository.save(recordFound);
-           
-       });
-   }
+   public TabelaDTO update(@PathVariable Long id, @Valid @NotNull TabelaDTO tabela) {
+    try {
+        return tabelaRepository.findById(id)
+            .map(recordFound -> {
+                recordFound.setNome(tabela.nome());
+                recordFound.setCategoria(tabela.categoria());
+                return tabelaMapper.toDTO(tabelaRepository.save(recordFound));
+            })
+            .orElseThrow(() -> new RecordNotFoundExeption(id));
+    } catch (Exception e) {
+        System.err.println("Error during update: " + e.getMessage());
+        throw e;
+    }
+}
+   public void delete(@PathVariable @NotNull @Positive Long id) {
 
-   public boolean delete(@PathVariable @NotNull @Positive Long id) {
-    return tabelaRepository.findById(id)
-    .map(recordFound -> {
-        tabelaRepository.deleteById(id);
-
-        return true;
-    })
-    .orElse(false);
+    tabelaRepository.delete(tabelaRepository.findById(id)
+            .orElseThrow(() -> new RecordNotFoundExeption(id)));
+   
 }
 }
