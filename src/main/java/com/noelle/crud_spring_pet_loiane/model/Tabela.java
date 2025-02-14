@@ -3,9 +3,14 @@ package com.noelle.crud_spring_pet_loiane.model;
 import org.hibernate.validator.constraints.Length;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.noelle.crud_spring_pet_loiane.enums.Categoria;
+import com.noelle.crud_spring_pet_loiane.enums.converters.CategoriaConverter;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,15 +33,14 @@ public class Tabela {
 
     @NotBlank
     @NotNull
-    @Length(min= 5, max = 10)
+    @Length(min= 5, max = 225)
     @Column(length = 200, nullable = false)
     private String nome;
 
     @NotNull
-    @Length(max = 10)
-    @Pattern(regexp = "back-end|front-end")
     @Column(length = 10, nullable = false)
-    private String categoria;
+    @Convert(converter = CategoriaConverter.class)
+    private Categoria categoria;
 
     @NotNull
     @Length(max = 10)

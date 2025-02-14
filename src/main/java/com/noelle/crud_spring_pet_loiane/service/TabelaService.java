@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.noelle.crud_spring_pet_loiane.dto.TabelaDTO;
 import com.noelle.crud_spring_pet_loiane.dto.mapper.TabelaMapper;
+import com.noelle.crud_spring_pet_loiane.enums.Categoria;
 import com.noelle.crud_spring_pet_loiane.exception.RecordNotFoundExeption;
 import com.noelle.crud_spring_pet_loiane.repository.TabelaRepository;
 
@@ -49,7 +50,7 @@ public class TabelaService {
         return tabelaRepository.findById(id)
             .map(recordFound -> {
                 recordFound.setNome(tabela.nome());
-                recordFound.setCategoria(tabela.categoria());
+                recordFound.setCategoria(Categoria.FRONTEND);
                 return tabelaMapper.toDTO(tabelaRepository.save(recordFound));
             })
             .orElseThrow(() -> new RecordNotFoundExeption(id));

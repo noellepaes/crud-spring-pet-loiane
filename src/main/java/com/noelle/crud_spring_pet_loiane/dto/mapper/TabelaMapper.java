@@ -3,6 +3,7 @@ package com.noelle.crud_spring_pet_loiane.dto.mapper;
 import org.springframework.stereotype.Component;
 
 import com.noelle.crud_spring_pet_loiane.dto.TabelaDTO;
+import com.noelle.crud_spring_pet_loiane.enums.Categoria;
 import com.noelle.crud_spring_pet_loiane.model.Tabela;
 
 @Component
@@ -12,7 +13,7 @@ public class TabelaMapper {
         if(tabela == null){
             return null;
         }
-        return new TabelaDTO(tabela.getId(), tabela.getNome(),  tabela.getCategoria());
+        return new TabelaDTO(tabela.getId(), tabela.getNome(), "Front-end");
     }
 
    
@@ -27,7 +28,7 @@ public class TabelaMapper {
             tabela.setId(tabelaDTO.id());
         }
         tabela.setNome(tabelaDTO.nome());
-        tabela.setCategoria(tabelaDTO.categoria());
+        tabela.setCategoria(Categoria.FRONTEND);
         tabela.setStatus("Ativo");
         return tabela;
     }
