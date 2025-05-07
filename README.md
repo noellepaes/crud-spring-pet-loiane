@@ -1,7 +1,7 @@
 # Programming registers
 
 
-![Image](https://github.com/user-attachments/assets/e594b1d0-c94d-48a1-95c8-89e30a96f65f)
+![Image](https://github.com/user-attachments/assets/ccfa3cc1-c9ba-4e2e-9542-5c36b4938725)
 
 
 ## SpotCode
